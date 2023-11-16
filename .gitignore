@@ -1,0 +1,4 @@
+__pycache__
+
+day*_input.txt
+!day*_test*_input.txt
