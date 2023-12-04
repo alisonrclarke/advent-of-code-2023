@@ -1,5 +1,7 @@
+import operator
 import re
 import sys
+from functools import reduce
 
 import utils
 
@@ -52,34 +54,38 @@ for j, row in enumerate(data):
             current_number = ""
             has_adjacent_symbol = False
 
-    # Get number at end of row
-    if i == r_len - 1 and current_number and has_adjacent_symbol:
-        p1_sum += int(current_number)
+        # Get number at end of row
+        if i == r_len - 1 and current_number and has_adjacent_symbol:
+            p1_sum += int(current_number)
 
 
 print(f"Part 1: {p1_sum}")
 
 
-def find_number(s, i):
-    """Find a number in string s around s[i]"""
-    n = s[i] if s[i].isdigit() else ""
+def find_numbers(s, i):
+    """Find a number or numbers in string s around s[i]"""
+    n_0 = ""
     k = i - 1
     while k >= 0:
         if s[k].isdigit():
-            n = f"{s[k]}{n}"
+            n_0 = s[k] + n_0
             k -= 1
         else:
             break
 
+    n_1 = ""
     k = i + 1
     while k < len(s):
         if s[k].isdigit():
-            n += s[k]
+            n_1 += s[k]
             k += 1
         else:
             break
 
-    return int(n)
+    if s[i].isdigit():
+        return [int(n_0 + s[i] + n_1)]
+    else:
+        return [int(n) for n in [n_0, n_1] if n]
 
 
 p2_sum = 0
@@ -94,19 +100,21 @@ for j, row in enumerate(data):
         if c == "*":
             numbers = []
             # we have a gear: look for adjacent numbers
-            if j > 0 and any([c2.isdigit() for c2 in data[j - 1][i - 1 : i + 1]]):
-                numbers.append(find_number(data[j - 1], i))
+            if j > 0 and any([c2.isdigit() for c2 in data[j - 1][i - 1 : i + 2]]):
+                numbers.extend(find_numbers(data[j - 1], i))
             if i > 0 and data[j][i - 1].isdigit():
-                numbers.append(find_number(data[j][: i - 1], i - 1))
+                numbers.extend(find_numbers(data[j][:i], i - 1))
             if i < r_len and data[j][i + 1].isdigit():
-                numbers.append(find_number(data[j][i + 1 :], 0))
+                numbers.extend(find_numbers(data[j][i + 1 :], 0))
             if j < len(data) - 1 and any(
-                [c2.isdigit() for c2 in data[j + 1][i - 1 : i + 1]]
+                [c2.isdigit() for c2 in data[j + 1][i - 1 : i + 2]]
             ):
-                numbers.append(find_number(data[j + 1], i))
+                numbers.extend(find_numbers(data[j + 1], i))
 
             # TODO: check length of numbers and multiply
-            print(numbers)
+            print(j, i, numbers)
+            if len(numbers) > 1:
+                p2_sum += reduce(operator.mul, numbers, 1)
 
 
 print(f"Part 2: {p2_sum}")
