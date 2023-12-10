@@ -83,3 +83,108 @@ while next_pos != start_pos:
 part1 = int((len(path) - 1) / 2)
 print(f"Part 1: {part1}")
 
+print(path[part1])
+x_bounds = (min(p[0] for p in path), max(p[0] for p in path))
+y_bounds = (min(p[1] for p in path), max(p[1] for p in path))
+print(x_bounds, y_bounds)
+
+possible_nests = {}
+
+current_nest = None
+for y in range(y_bounds[0], y_bounds[1] + 1):
+    for x in range(x_bounds[0], x_bounds[1] + 1):
+        # if not current_nest:
+        surrounds = [(x, y - 1), (x-1, y), (x-1, y-1), (x+1, y-1)]
+        current_nest = next(
+            (k for k, n in possible_nests.items() if any(
+                p in surrounds for p in n)),
+            None
+        )
+        # print(x, y, current_nest)
+
+        c = rows[y][x]
+        if c == ".":
+            if current_nest:
+                possible_nests[current_nest].append((x, y))
+            else:
+                possible_nests[(x, y)] = [(x, y)]
+
+
+
+p2_total = 0
+
+for pos, nest in possible_nests.items():
+    print()
+    
+    print(nest)
+    for j, row in enumerate(rows):
+        s = ""
+        for i, c in enumerate(row):
+            s += "0" if (i, j) in nest else row[i]
+
+        print(s)
+    print()
+    out_of_bounds = False
+    for n in nest:
+        if n[0] < x_bounds[0] or n[0] > x_bounds[1] or n[1] < y_bounds[0] or n[1] > y_bounds[1]:
+            out_of_bounds = True
+            break
+
+        # also if outside loop don't need to count
+        row_path = [p[0] for p in path if p[1] == n[1]]
+        row_bounds = (min(row_path), max(row_path))
+        if n[0] < row_bounds[0] or n[0] > row_bounds[1]:
+            out_of_bounds = True
+            break
+
+        col_path = [p[1] for p in path if p[0] == n[0]]
+        col_bounds = (min(col_path), max(col_path))
+        if n[1] < col_bounds[0] or n[1] > col_bounds[1]:
+            out_of_bounds = True
+            break
+
+    if out_of_bounds:
+        print("out of bounds")
+        continue
+
+    has_odd_count = False
+    for n in nest:
+        print(n, nest)
+        count = 0
+        print(x_bounds, (x_bounds[1] - x_bounds[0])/2 + x_bounds[0])
+        if n[0] < (x_bounds[1] - x_bounds[0])/2 + x_bounds[0]:
+            print("rtl")
+            for i in range(n[0]-1, x_bounds[0]-2, -1):
+                print(i, n[1])
+                if (i, n[1]) in path:
+                    print('in path')
+                    idx = path.index((i, n[1]))
+                    if i == n[0]-1 or ((i+1, n[1]) not in path[idx-1:idx+2]):
+                        # breakpoint()
+                        print('incrementing')
+                        count += 1
+        else:
+            # Go left to right
+            print("ltr")
+            for i in range(n[0]+1, x_bounds[1]+2):
+                print(i, n[1])
+                if (i, n[1]) in path:
+                    print('in path')
+                    idx = path.index((i, n[1]))
+                    if i == n[0]+1 or ((i-1, n[1]) not in path[idx-1:idx+2]):
+                        # breakpoint()
+                        print('incrementing')
+                        count += 1
+
+        # TODO: also check vertical counts?
+        
+        print("total times crossed", count)
+        if count % 2 == 1:
+            has_odd_count = True
+            break
+    
+    if has_odd_count:
+        p2_total += len(nest)
+        print("total now", p2_total)
+
+print(p2_total)
