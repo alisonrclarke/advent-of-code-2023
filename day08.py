@@ -7,10 +7,10 @@ import utils
 
 test_mode = len(sys.argv) > 1
 if test_mode:
-    suffix = sys.argv[2] if len(sys.argv) > 2 else ''
-    input_file = f'day08_test_input{suffix}.txt'
+    suffix = sys.argv[2] if len(sys.argv) > 2 else ""
+    input_file = f"day08_test_input{suffix}.txt"
 else:
-    input_file = f'day08_input.txt'
+    input_file = f"day08_input.txt"
 
 data = utils.input_as_lines(input_file)
 
@@ -19,15 +19,15 @@ instructions = data[0]
 paths = {}
 part2_start_nodes = []
 
-line_re = re.compile(r'(\w+) = \((\w+), (\w+)\)')
+line_re = re.compile(r"(\w+) = \((\w+), (\w+)\)")
 for line in data[2:]:
     m = line_re.match(line)
     paths[m.group(1)] = (m.group(2), m.group(3))
-    if m.group(1)[-1] == 'A':
+    if m.group(1)[-1] == "A":
         part2_start_nodes.append(m.group(1))
 
 
-current = 'AAA'
+current = "AAA"
 i = 0
 
 # while True:
@@ -61,14 +61,14 @@ for n in part2_start_nodes:
         i += 1
 
         # Get path
-        if next_inst == 'L':
+        if next_inst == "L":
             current = paths[current][0]
         else:
             current = paths[current][1]
 
         current_path.append(current)
 
-        if current[-1] == 'Z':
+        if current[-1] == "Z":
             if shortest_path is None:
                 shortest_path = i
                 # print("Got a path, going round again to check how long it takes")
